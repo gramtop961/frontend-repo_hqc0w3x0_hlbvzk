@@ -3,32 +3,7 @@
 > vite
 
 
-  VITE v5.4.20  ready in 211 ms
+  VITE v5.4.20  ready in 210 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://172.20.17.244:3000/
-5:33:55 AM [vite] Pre-transform error: Transform failed with 1 error:
-/home/workspace/src/components/Operations.jsx:204:107: ERROR: Expected "{" but found "["
-5:33:56 AM [vite] Internal server error: Transform failed with 1 error:
-/home/workspace/src/components/Operations.jsx:204:107: ERROR: Expected "{" but found "["
-  Plugin: vite:esbuild
-  File: /home/workspace/src/components/Operations.jsx:204:107
-  
-  Expected "{" but found "["
-  202|  
-  203|    return rec && (
-  204|      <Panel title="Receipt" statusFlow={['Draft','Ready','Done']} status={rec.status} close={close} actions=[
-     |                                                                                                             ^
-  205|        { label: 'New', onClick: () => window.location.reload() },
-  206|        { label: rec.status==='Draft'?'To Do':'', primary: true, onClick: () => action('todo') },
-  
-      at failureErrorWithLog (/home/workspace/node_modules/esbuild/lib/main.js:1472:15)
-      at /home/workspace/node_modules/esbuild/lib/main.js:755:50
-      at responseCallbacks.<computed> (/home/workspace/node_modules/esbuild/lib/main.js:622:9)
-      at handleIncomingPacket (/home/workspace/node_modules/esbuild/lib/main.js:677:12)
-      at Socket.readFromStdout (/home/workspace/node_modules/esbuild/lib/main.js:600:7)
-      at Socket.emit (node:events:508:28)
-      at addChunk (node:internal/streams/readable:559:12)
-      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
-      at Readable.push (node:internal/streams/readable:390:5)
-      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)

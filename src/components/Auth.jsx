@@ -75,7 +75,7 @@ export function Signup() {
 }
 
 export function Forgot() {
-  const [stage, setStage] = useState<'otp'|'reset'|'email'>('email')
+  const [stage, setStage] = useState('email')
   const [form, setForm] = useState({ email: '', otp: '', new_password: '', confirm_password: '' })
   const [msg, setMsg] = useState('')
   const [error, setError] = useState('')

@@ -17,7 +17,7 @@ function useDebounced(value, delay = 400) {
 
 function Toolbar({ title, view, setView, onNew, filters, setFilters }) {
   const dq = useDebounced(filters.q)
-  useEffect(()=>{ setFilters(f => ({ ...f, dq })) }, [dq])
+  useEffect(()=>{ setFilters(f => ({ ...f, dq })) }, [dq, setFilters])
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
       <h2 className="text-xl font-semibold text-white/90 flex-1">{title}</h2>
@@ -201,13 +201,13 @@ export function ReceiptDetail({ reference, close }) {
   }
 
   return rec && (
-    <Panel title="Receipt" statusFlow={['Draft','Ready','Done']} status={rec.status} close={close} actions=[
+    <Panel title="Receipt" statusFlow={['Draft','Ready','Done']} status={rec.status} close={close} actions={[
       { label: 'New', onClick: () => window.location.reload() },
       { label: rec.status==='Draft'?'To Do':'', primary: true, onClick: () => action('todo') },
       { label: rec.status==='Ready'?'Validate':'', primary: true, onClick: () => action('validate'), icon: BadgeCheck },
       { label: 'Print', icon: Printer },
       { label: 'Cancel', icon: XCircle, danger: true, onClick: () => action('cancel') },
-    ]>
+    ]}>
       <FormGrid>
         <Field label="Reference" value={rec.reference} />
         <Field label="Receive From" value={rec.from_location || ''} />
@@ -215,11 +215,11 @@ export function ReceiptDetail({ reference, close }) {
         <Field label="Responsible" value={rec.responsible || ''} />
       </FormGrid>
       <ProductsTable lines={rec.lines} />
-      <SideNote lines=[
+      <SideNote lines={[
         'Draft = Initial stage',
         'Ready = Ready to receive',
         'Done = Received',
-      ] />
+      ]} />
     </Panel>
   )
 }
@@ -237,11 +237,11 @@ export function DeliveryDetail({ reference, close }) {
   }
 
   return rec && (
-    <Panel title="Delivery" statusFlow={['Draft','Waiting','Ready','Done']} status={rec.status} close={close} actions=[
+    <Panel title="Delivery" statusFlow={['Draft','Waiting','Ready','Done']} status={rec.status} close={close} actions={[
       { label: 'New', onClick: () => window.location.reload() },
       { label: rec.status==='Draft'?'To Do':'', primary: true, onClick: () => action('todo') },
       { label: rec.status==='Ready'?'Validate':'', primary: true, onClick: () => action('validate'), icon: BadgeCheck },
-    ]>
+    ]}>
       <FormGrid>
         <Field label="Reference" value={rec.reference} />
         <Field label="Delivery Address" value={rec.to_location || ''} />
@@ -309,6 +309,19 @@ function ProductsTable({ lines, highlightInsufficient }) {
           </tr>
         </tbody>
       </table>
+    </div>
+  )
+}
+
+function SideNote({ lines = [] }) {
+  return (
+    <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-white/60">
+      <div className="mb-2 text-white/70">Notes</div>
+      <ul className="list-disc pl-5 space-y-1">
+        {lines.map((l, i) => (
+          <li key={i}>{l}</li>
+        ))}
+      </ul>
     </div>
   )
 }
