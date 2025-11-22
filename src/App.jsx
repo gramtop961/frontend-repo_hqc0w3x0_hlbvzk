@@ -1,73 +1,64 @@
-function App() {
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import Spline from '@splinetool/react-spline'
+import NavBar from './components/NavBar'
+import Dashboard from './components/Dashboard'
+import ProductsStock from './components/ProductsStock'
+import MoveHistory from './components/MoveHistory'
+import { Login, Signup, Forgot } from './components/Auth'
+import { ReceiptsList, DeliveriesList, ReceiptDetail, DeliveryDetail } from './components/Operations'
+
+function Shell({ children }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_50%)]"></div>
-
-      <div className="relative min-h-screen flex items-center justify-center p-8">
-        <div className="max-w-2xl w-full">
-          {/* Header with Flames icon */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center mb-6">
-              <img
-                src="/flame-icon.svg"
-                alt="Flames"
-                className="w-24 h-24 drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]"
-              />
-            </div>
-
-            <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
-              Flames Blue
-            </h1>
-
-            <p className="text-xl text-blue-200 mb-6">
-              Build applications through conversation
-            </p>
-          </div>
-
-          {/* Instructions */}
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl mb-6">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                1
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Describe your idea</h3>
-                <p className="text-blue-200/80 text-sm">Use the chat panel on the left to tell the AI what you want to build</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Watch it build</h3>
-                <p className="text-blue-200/80 text-sm">Your app will appear in this preview as the AI generates the code</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Refine and iterate</h3>
-                <p className="text-blue-200/80 text-sm">Continue the conversation to add features and make changes</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="text-center">
-            <p className="text-sm text-blue-300/60">
-              No coding required • Just describe what you want
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="fixed inset-0 opacity-50 pointer-events-none">
+        <Spline scene="https://prod.spline.design/41MGRk-UDPKO-l6W/scene.splinecode" style={{ width: '100%', height: '100%' }} />
       </div>
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.04)_1px),linear-gradient(to_bottom,transparent,rgba(255,255,255,0.04)_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <NavBar />
+      <main className="relative z-10">{children}</main>
     </div>
   )
 }
 
-export default App
+function OperationsPage({ type }) {
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const ref = params.get('ref')
+  const close = () => window.history.pushState({}, '', window.location.pathname)
+  return (
+    <Shell>
+      <div className="px-4 md:px-6 py-8 max-w-7xl mx-auto">
+        {type==='receipts' ? <ReceiptsList onOpen={(o) => window.location.search = `?ref=${o.reference||''}`} /> : <DeliveriesList onOpen={(o) => window.location.search = `?ref=${o.reference||''}`} />}
+      </div>
+      {ref && (type==='receipts' ? <ReceiptDetail reference={ref} close={close} /> : <DeliveryDetail reference={ref} close={close} />)}
+    </Shell>
+  )
+}
+
+function Protected({ children }) {
+  const token = localStorage.getItem('token')
+  if (!token) return <Navigate to="/login" replace />
+  return children
+}
+
+export default function App() {
+  useEffect(() => { fetch((import.meta.env.VITE_BACKEND_URL||'http://localhost:8000')+'/seed', { method: 'POST' }) }, [])
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot" element={<Forgot />} />
+
+      <Route path="/dashboard" element={<Protected><Shell><Dashboard /></Shell></Protected>} />
+      <Route path="/operations/receipts" element={<Protected><OperationsPage type="receipts" /></Protected>} />
+      <Route path="/operations/deliveries" element={<Protected><OperationsPage type="deliveries" /></Protected>} />
+      <Route path="/products" element={<Protected><Shell><ProductsStock /></Shell></Protected>} />
+      <Route path="/stock" element={<Protected><Shell><ProductsStock /></Shell></Protected>} />
+      <Route path="/moves" element={<Protected><Shell><MoveHistory /></Shell></Protected>} />
+
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  )
+}
